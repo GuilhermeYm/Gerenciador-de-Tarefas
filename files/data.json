@@ -1,4 +1,23 @@
-[
-  "teste",
-  "tarefa"
-]
+{
+  "tarefas_atuais": [
+    "teste",
+    "teste",
+    "teste"
+  ],
+  "desfazer_pilha": [
+    [],
+    [
+      "teste"
+    ],
+    [
+      "teste",
+      "teste"
+    ]
+  ],
+  "refazer_pilha": [
+    "teste",
+    "teste",
+    "teste",
+    "tarefa"
+  ]
+}

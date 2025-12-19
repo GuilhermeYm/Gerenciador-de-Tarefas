@@ -5,44 +5,64 @@ NOME_ARQUIVO = "data.json"
 CAMINHO_ARQUIVO = Path(__file__).resolve().parent / NOME_ARQUIVO
 
 
-def verificar_arquivo():
+def alterar_arquivo(dados):
+    with open(CAMINHO_ARQUIVO, "w", encoding="utf-8") as f:
+        json.dump(dados, f, indent=2, ensure_ascii=False)
+
+
+def ler_arquivo():
+    try:
+        with open(CAMINHO_ARQUIVO, "r", encoding="utf-8") as f:
+            dados = json.load(f)
+            return dados
+    except json.JSONDecodeError:
+        return []
+
+
+def arquivo_existe():
     if not CAMINHO_ARQUIVO.exists():
         print(
             f"O arquivo onde salvamos as tarefas não existia, então eu tive que criá-lo.\n{CAMINHO_ARQUIVO}"
         )
-        CAMINHO_ARQUIVO.touch()
-    else:
-        print("Arquivo de salvamento encontrado!")
+        try:
+            # crio o arquivo
+            CAMINHO_ARQUIVO.touch()
+
+            # coloca no arquivo os dados iniciais -> são necessários para o aplicativo funcionar
+
+            dados_iniciais = {
+                "tarefas_atuais": [],
+                "desfazer_pilha": [],
+                "refazer_pilha": [],
+            }
+            alterar_arquivo(dados_iniciais)
+        except Exception as e:
+            print(f"Não foi possível criar o arquivo. Erro: {e}")
 
 
-def abrir_arquivo():
+def desfazer_ultima_tarefa():
     try:
-        with open(CAMINHO_ARQUIVO, "r") as f:
-            tarefa_content = json.load(f)
-            return tarefa_content
-    except json.JSONDecodeError:
-        print("Ainda não há nenhuma tarefa salva no arquivo.")
-        return False
-    except FileNotFoundError:
-        print(
-            "Arquivo não foi encontrado, vou tentar resolver o problema. Caso, ele persista, por favor, entre em contato com o suporte"
-        )
-        verificar_arquivo()
-        print("Vamos tentar novamente!")
-        abrir_arquivo()
+        dados = ler_arquivo()
+        ultima_alteracao = dados["desfazer_pilha"].pop()
 
+        # atualizar a redo stack
+        dados["refazer_pilha"].clear()
+        dados["refazer_pilha"] = dados["tarefas_atuais"].copy()
 
-def carregar_tarefas():
-    tentar_abrir_arquivo = abrir_arquivo()
-    if tentar_abrir_arquivo:
-        return tentar_abrir_arquivo
-    return []
+        # arrumar  agora as tarefas
+        dados["tarefas_atuais"].clear()
+        dados["tarefas_atuais"] = ultima_alteracao
+        alterar_arquivo(dados)
+        print("Desfiz a última alteração com sucesso!")
+    except:
+        ...
+
 
 def adicionar_tarefa_no_arquivo(tarefa_content):
-    try: 
-        tarefas = carregar_tarefas()
-        tarefas.append(tarefa_content)
-        with open(CAMINHO_ARQUIVO, "w", encoding="utf-8") as f:
-            json.dump(tarefas, f, indent=2, ensure_ascii=False)
+    try:
+        tarefas = ler_arquivo()
+        tarefas["desfazer_pilha"].append(tarefas["tarefas_atuais"].copy())
+        tarefas["tarefas_atuais"].append(tarefa_content)
+        alterar_arquivo(tarefas)
     except Exception as e:
         print(e)
