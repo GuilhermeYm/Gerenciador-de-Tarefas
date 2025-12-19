@@ -6,6 +6,7 @@ from files.handleFile import (
     adicionar_tarefa_no_arquivo,
     desfazer_ultima_tarefa,
     arquivo_existe,
+    refazer_ultimas_tarefas,
 )
 
 
@@ -30,10 +31,14 @@ class Task:
 
     # Método de Instância
     def adicionar_tarefa(self, tarefa_content):
-        adicionado_tarefa_na_classe = self.tasks.append(tarefa_content)
-        adicionar_tarefa_no_arquivo(tarefa_content)
-        print("Tarefa foi adicionada com sucesso!")
-        sleep
+        self.tasks.append(tarefa_content)
+        atualizando_arquivoco_com_a_nova_tarefa = adicionar_tarefa_no_arquivo(
+            tarefa_content
+        )
+
+        print(atualizando_arquivoco_com_a_nova_tarefa)
+
+        sleep(1)
         self.listar()
 
     @staticmethod
@@ -62,7 +67,11 @@ class Task:
         input("Basta digitar qualquer tecla para sair")
 
     def desfazer(self):
-        desfazer_ultima_tarefa()
+        desfazer_alteracao = desfazer_ultima_tarefa()
+        print(desfazer_alteracao)
 
-    def refazer(self): ...
+    def refazer(self):
+        refazer_alteracao = refazer_ultimas_tarefas()
+        print(refazer_alteracao)
+
     def excluir(self): ...

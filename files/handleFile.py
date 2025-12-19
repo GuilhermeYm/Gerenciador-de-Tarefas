@@ -40,29 +40,50 @@ def arquivo_existe():
             print(f"Não foi possível criar o arquivo. Erro: {e}")
 
 
+def refazer_ultimas_tarefas():
+    try:
+        dados = ler_arquivo()
+        dados["desfazer_pilha"].append(dados["tarefas_atuais"].copy())
+        dados["tarefas_atuais"].clear()
+        dados["tarefas_atuais"] = dados["refazer_pilha"].copy()
+        dados["refazer_pilha"].clear()
+        alterar_arquivo(dados)
+        return "Sucesso ao refazer a última alteração!"
+    except Exception as e:
+        return f"Não foi possível adicionar a tarefa. Erro: {e}"
+
+
 def desfazer_ultima_tarefa():
     try:
         dados = ler_arquivo()
-        ultima_alteracao = dados["desfazer_pilha"].pop()
-
-        # atualizar a redo stack
+        # limpa a pilha de refazer
         dados["refazer_pilha"].clear()
+        # atualiza a pilha de refazer com o estado atual das tarefas
         dados["refazer_pilha"] = dados["tarefas_atuais"].copy()
 
-        # arrumar  agora as tarefas
+        # pegar a última adição que fizeram na lista de tarefas
         dados["tarefas_atuais"].clear()
-        dados["tarefas_atuais"] = ultima_alteracao
+        dados["tarefas_atuais"] = dados["desfazer_pilha"].pop()
+
         alterar_arquivo(dados)
         print("Desfiz a última alteração com sucesso!")
-    except:
-        ...
+    except Exception as e:
+        return f"Não foi possível adicionar a tarefa. Erro: {e}"
 
 
 def adicionar_tarefa_no_arquivo(tarefa_content):
     try:
-        tarefas = ler_arquivo()
-        tarefas["desfazer_pilha"].append(tarefas["tarefas_atuais"].copy())
-        tarefas["tarefas_atuais"].append(tarefa_content)
-        alterar_arquivo(tarefas)
+        dados = ler_arquivo()
+
+        # limpa a pilha de refazer
+        dados["refazer_pilha"].clear()
+
+        dados["desfazer_pilha"].append(dados["tarefas_atuais"].copy())
+        dados["tarefas_atuais"].append(tarefa_content)
+
+        # atualiza o arquivo com os dados atualizados
+        alterar_arquivo(dados)
+
+        return "Tarefa foi adicionada com sucesso!"
     except Exception as e:
-        print(e)
+        return f"Não foi possível adicionar a tarefa. Erro: {e}"
